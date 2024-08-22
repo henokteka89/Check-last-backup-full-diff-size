@@ -1,0 +1,27 @@
+-- T-SQL script to retrieve the sizes of full and differential backups taken in the past 24 hours. 
+-- The script queries the msdb database, specifically the backupset and backupmediafamily tables, to gather this information.
+
+
+USE msdb;
+GO
+
+SELECT 
+    CASE 
+        WHEN bs.type = 'D' THEN 'Differential Backup'
+        WHEN bs.type = 'I' THEN 'Differential Backup'
+        WHEN bs.type = 'L' THEN 'Log Backup'
+        ELSE 'Full Backup'
+    END AS BackupType,
+    CONVERT(VARCHAR(20), bs.backup_start_date, 120) AS BackupStartDate,
+    bs.database_name AS DatabaseName,
+    bs.backup_size / 1024 / 1024 AS BackupSizeMB,
+    mf.physical_device_name AS BackupFileName
+FROM 
+    backupset bs
+    INNER JOIN backupmediafamily mf ON bs.media_set_id = mf.media_set_id
+WHERE 
+    bs.backup_start_date >= DATEADD(DAY, -1, GETDATE()) 
+    AND bs.type IN ('D', 'I', 'L', 'F')
+	--and bs.database_name like 'tr%'
+ORDER BY 
+    bs.backup_start_date DESC;
