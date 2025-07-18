@@ -3,10 +3,10 @@ GO
 
 SELECT 
     CASE 
-        WHEN bs.type = 'D' THEN 'Differential Backup'
+        WHEN bs.type = 'D' THEN 'Full Backup'
         WHEN bs.type = 'I' THEN 'Differential Backup'
         WHEN bs.type = 'L' THEN 'Log Backup'
-        ELSE 'Full Backup'
+        ELSE bs.type
     END AS BackupType,
     CONVERT(VARCHAR(20), bs.backup_start_date, 120) AS BackupStartDate,
     bs.database_name AS DatabaseName,
